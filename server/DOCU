@@ -1,0 +1,51 @@
+GITS Server Documentation
+-------------------------
+!!!Not realy a documentation yet!!!
+Yust a collection of ideas to help me going.
+
+_Input:_
+	somthing like this:
+	([Char],Integer,[Char],(Integer,Integer,Integer),[Char])
+	What does what:
+	(<command>,Event ID,<Event Name>,<Day,Hour,Minute>,<Room>) 
+	
+	commands:
+		com: commit an event to the server
+		del delete an entry
+		chanN: change Name
+		chanT: change Time
+		chanR: change Room
+
+_output:_
+	a list of all we need:
+	[(Int,[Char],(Int,Int,Int),[Char])]
+	Function:
+	[(Event Id, <Event Name>, <Day,Hour,Minute>, Roomname)]
+
+	IRC Anouncments?
+
+_Interna_
+	How to save this? Database? File?
+
+	Should the client order the times or the server?
+	I Guess the server since we have to check for time overlapping
+	per room. 
+
+__Config File Format__
+The Config File is Basicle a of the Format:
+(Key, Value)
+(Key, Value)
+...
+
+unse CfgParse to get values.
+The function parser:: String -> String -> String will do niceley
+Usage:	     parser  <Key> <IO String>
+
+_Passwd.cnf_
+The passwd.cnf is in the format:
+(User,Pass);[Priveleg1,Priveleg2, ... Priveleg n]
+
+Priveleges are:
+Update: Can get a fresh Copy of the Fahrplan
+Edit: Can Edit Single Entrys 
+All: All of the Above

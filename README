@@ -1,0 +1,10 @@
+G.ulasch I.nteractive F.ahrplan T.ools
+<-==================================->
+The G.I.F.T is a set of simple Fahrplan maintainig and anouncment tools.
+It consists of mostly three programms:
+1. the server:   He collects all events and distribute these among
+                 the clients and anouncers. He also keeps track of 
+	         the event so that non of them overlap.
+2. the client:   He commits events and changes to the server.
+	         He also displays all events.
+3. the anouncer: He displays the next events to the public.
