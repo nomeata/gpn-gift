@@ -10,7 +10,7 @@ width = 1024
 height :: Num a => a
 height = 768 
 
-data EventState = Passed | Running | Future | FarFuture
+data EventState = Passed | Running | Future 
 
 data Time = Time { tDay :: Int, tHour :: Int, tMin :: Int } deriving (Eq, Ord)
 data RunTime = RunTime { rtHour :: Int, rtMin :: Int } deriving (Eq, Ord)
@@ -67,9 +67,9 @@ fahrplan now events = do
 isPassed (Passed, _) = True
 isPassed _           = False
 
-label time event | tDay (eTime event) > tDay time = (FarFuture, event)
-                 | eTime event < time             = (Passed,    event)
-                 | eTime event < time             = (Passed,    event)
+label time event | eEndTime event < time          = (Passed,    event)
+                 | eTime event    < time          = (Running,   event)
+                 | otherwise                      = (Future,    event)
 
 markup (lable, event) line = do
 	let place_and_time = printf "[%s @ %s]"
@@ -81,7 +81,9 @@ markup (lable, event) line = do
 	showText place_and_time
 	setFontSize 40
 	moveTo 350 y
-	setSourceRGB 0 0 0
+	case lable of
+		Running -> setSourceRGB 1 0 0 
+		Future  -> setSourceRGB 0 0 0
 	showText (eName event)
 
 now = do
@@ -92,10 +94,10 @@ eName    (_, s, _, _, _) = s
 eRoom    (_, _, s, _, _) = s
 eTime    (_, _, _, t, _) = t
 eRunTime (_, _, _, _, t) = t
-eEndTime event = fix $ start {tHour = tHour start + rtHour rt, tMin = tMin start + rtMin rt}
-  where start = eTime event
-	rt = eRunTime event
-	fix = fixd . fixh
+eEndTime event = eTime event `addRunTime` eRunTime event
+
+addRunTime start rt= fix $ start {tHour = tHour start + rtHour rt, tMin = tMin start + rtMin rt}
+  where fix = fixd . fixh
 	fixh time = let (hd, m) = tMin time `divMod` 60 in
 			time {tHour = tHour time + hd, tMin = m}
 	fixd time = let (dd, h) = tHour time `divMod` 24 in
@@ -112,7 +114,7 @@ test_data = [
 	(1,
 	"Gulaschgh",
 	"Chaos",
-	Time 1 13 23,
+	Time 0 22 23,
 	RunTime 1 15
 	),
 	(2,
