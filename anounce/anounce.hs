@@ -21,10 +21,10 @@ main = do
 	canvas <- drawingAreaNew
 	windowSetResizable window False
 	widgetSetSizeRequest window width height
-	onButtonPress window $ const (do widgetDestroy window; return True)
+	onButtonPress window $ const (widgetDestroy window >> return True)
 	onDestroy window mainQuit
 	onExpose canvas $ const $ render canvas
-	timeoutAdd (render canvas) 500
+	timeoutAdd (widgetQueueDraw canvas >> return True) 500
 	set window [containerChild := canvas]
 	widgetShowAll window
 	mainGUI
