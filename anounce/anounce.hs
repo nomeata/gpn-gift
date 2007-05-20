@@ -33,6 +33,7 @@ render canvas = do
 renderC now events = do
 	drawbg
 	clock now
+	fahrplan events
 	return True
 
 drawbg = do
@@ -49,11 +50,20 @@ clock (day, hour, minute, second) = do
 	moveTo (width - w - pad) (h + pad)
 	showText text
 
+fahrplan events = do
+	let lines = map markup events
+	foreach (zip lines [1..]) $ \(text, num) -> do
+		moveTo 20 (30 * num)	
+		showText text
+	
+markup (id, name, room, day, hour, min, dh, dm) = 
+	printf "[%d %02.0d:%02.0d @ %s] %s" day hour min room name
 
 now = do
 	time <- getClockTime >>= toCalendarTime
 	return (ctDay time - 20, ctHour time, ctMin time, ctSec time)
 
+test_data :: [(Int, String, String, Int, Int, Int, Int, Int)]
 test_data = [
 	(1,
 	"Gulasch",
@@ -68,4 +78,8 @@ test_data = [
 	13,23,
 	1,15)
 	]
+
+
+foreach :: (Monad m) => [a] -> (a -> m b) -> m [b]
+foreach = flip mapM
 
