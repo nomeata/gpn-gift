@@ -10,6 +10,15 @@ width = 1024
 height :: Num a => a
 height = 768 
 
+data EventState = Passed | Running | Future | FarFuture
+
+data Time = Time { tDay :: Int, tHour :: Int, tMin :: Int } deriving (Eq, Ord)
+data RunTime = RunTime { rtHour :: Int, rtMin :: Int } deriving (Eq, Ord)
+
+instance Show Time where
+	show time = printf "Tag %d − %02.0d:%02.0d" (tDay time) (tHour time) (tMin time)
+
+
 main = do
 	initGUI
 	window <- windowNew
@@ -31,52 +40,87 @@ render canvas = do
 	renderWithDrawable win $ renderC time test_data
 
 renderC now events = do
+	selectFontFace "Mono" FontSlantNormal FontWeightNormal
 	drawbg
 	clock now
-	fahrplan events
+	fahrplan now events
 	return True
 
 drawbg = do
 	setSourceRGB 1 1 1
 	paint
 
-clock (day, hour, minute, second) = do
+clock time = do
 	let pad = 20
-	let text = printf "Tag %d − %02.0d:%02.0d:%02.0d" day hour minute second
+	let text = show time
 	setFontSize 20
 	setSourceRGB 0 0 0
-  	te@(TextExtents xb yb w h _ _) <- textExtents text
+  	(TextExtents xb yb w h _ _) <- textExtents text
 	showText (show xb)
 	moveTo (width - w - pad) (h + pad)
 	showText text
 
-fahrplan events = do
-	let lines = map markup events
-	foreach (zip lines [1..]) $ \(text, num) -> do
-		moveTo 20 (30 * num)	
-		showText text
-	
-markup (id, name, room, day, hour, min, dh, dm) = 
-	printf "[%d %02.0d:%02.0d @ %s] %s" day hour min room name
+fahrplan now events = do
+	let show_events = take 10 $ filter (not . isPassed) $ map (label now) $ events
+	mapM_ (uncurry markup) (zip show_events [1..])
+
+isPassed (Passed, _) = True
+isPassed _           = False
+
+label time event | tDay (eTime event) > tDay time = (FarFuture, event)
+                 | eTime event < time             = (Passed,    event)
+                 | eTime event < time             = (Passed,    event)
+
+markup (lable, event) line = do
+	let place_and_time = printf "[%s @ %s]"
+		(show (eTime event)) (eRoom event)
+	let y = 50 * line
+	moveTo 20 y
+	setFontSize 20
+	setSourceRGB 0.3 0.3 0.3
+	showText place_and_time
+	setFontSize 40
+	moveTo 350 y
+	setSourceRGB 0 0 0
+	showText (eName event)
 
 now = do
 	time <- getClockTime >>= toCalendarTime
-	return (ctDay time - 20, ctHour time, ctMin time, ctSec time)
+	return $ Time { tDay = ctDay time - 20, tHour = ctHour time, tMin = ctMin time}
 
-test_data :: [(Int, String, String, Int, Int, Int, Int, Int)]
+eName    (_, s, _, _, _) = s
+eRoom    (_, _, s, _, _) = s
+eTime    (_, _, _, t, _) = t
+eRunTime (_, _, _, _, t) = t
+eEndTime event = fix $ start {tHour = tHour start + rtHour rt, tMin = tMin start + rtMin rt}
+  where start = eTime event
+	rt = eRunTime event
+	fix = fixd . fixh
+	fixh time = let (hd, m) = tMin time `divMod` 60 in
+			time {tHour = tHour time + hd, tMin = m}
+	fixd time = let (dd, h) = tHour time `divMod` 24 in
+			time {tDay = tDay time + dd, tHour = h}
+		
+test_data :: [(Int, String, String, Time, RunTime)]
 test_data = [
 	(1,
 	"Gulasch",
 	"Chaos",
-	1,
-	12,23,
-	1,15),
+	Time 0 12 23,
+	RunTime 1 15
+	),
+	(1,
+	"Gulaschgh",
+	"Chaos",
+	Time 1 13 23,
+	RunTime 1 15
+	),
 	(2,
 	"Hackfleisch",
 	"Ordnung",
-	1,
-	13,23,
-	1,15)
+	Time 1 15 23,
+	RunTime 1 30
+	)
 	]
 
 
