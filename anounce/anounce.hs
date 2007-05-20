@@ -2,6 +2,8 @@
 
 import Graphics.UI.Gtk
 import Graphics.Rendering.Cairo 
+import Text.Printf
+import System.Time
 
 width :: Num a => a
 width = 1024
@@ -17,25 +19,40 @@ main = do
 	onButtonPress window $ const (do widgetDestroy window; return True)
 	onDestroy window mainQuit
 	onExpose canvas $ const $ render canvas
+	timeoutAdd (render canvas) 500
 	set window [containerChild := canvas]
 	widgetShowAll window
 	mainGUI
 
 render canvas = do
+	time <- now
 	win <- widgetGetDrawWindow canvas
 	--(width, height) <- widgetGetSize canvas
-	renderWithDrawable win $ renderC now test_data
+	renderWithDrawable win $ renderC time test_data
 
 renderC now events = do
+	drawbg
 	clock now
 	return True
 
-clock (day, hour, minute) = do
-	return ()
+drawbg = do
+	setSourceRGB 1 1 1
+	paint
+
+clock (day, hour, minute, second) = do
+	let pad = 20
+	let text = printf "Tag %d − %02.0d:%02.0d:%02.0d" day hour minute second
+	setFontSize 20
+	setSourceRGB 0 0 0
+  	te@(TextExtents xb yb w h _ _) <- textExtents text
+	showText (show xb)
+	moveTo (width - w - pad) (h + pad)
+	showText text
 
 
-
-now = (1,12,00)
+now = do
+	time <- getClockTime >>= toCalendarTime
+	return (ctDay time - 20, ctHour time, ctMin time, ctSec time)
 
 test_data = [
 	(1,
