@@ -48,7 +48,7 @@ drawbg = do
 
 clock time = do
 	let pad = 20
-	let text = show time
+	let text = printTime time
 	setFontSize 20
 	setSourceRGB 0 0 0
   	(TextExtents xb yb w h _ _) <- textExtents text
