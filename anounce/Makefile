@@ -1,3 +1,3 @@
 all:	anounce.hs
-	ghc anounce.hs -o anounce
+	ghc --make anounce.hs -o anounce
 clean:
