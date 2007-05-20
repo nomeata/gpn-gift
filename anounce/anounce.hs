@@ -67,9 +67,9 @@ fahrplan now events = do
 isPassed (Passed, _) = True
 isPassed _           = False
 
-label time event | eEndTime event < time          = (Passed,    event)
-                 | eTime event    < time          = (Running,   event)
-                 | otherwise                      = (Future,    event)
+label time event | eEndTime event < time  = (Passed,    event)
+                 | eTime event    < time  = (Running,   event)
+                 | otherwise              = (Future,    event)
 
 markup (lable, event) line = do
 	let place_and_time = printf "[%s @ %s]"
@@ -96,8 +96,9 @@ eTime    (_, _, _, t, _) = t
 eRunTime (_, _, _, _, t) = t
 eEndTime event = eTime event `addRunTime` eRunTime event
 
-addRunTime start rt= fix $ start {tHour = tHour start + rtHour rt, tMin = tMin start + rtMin rt}
-  where fix = fixd . fixh
+addRunTime start rt= fix $ sum 
+  where sum = start {tHour = tHour start + rtHour rt, tMin = tMin start + rtMin rt}
+  	fix = fixd . fixh
 	fixh time = let (hd, m) = tMin time `divMod` 60 in
 			time {tHour = tHour time + hd, tMin = m}
 	fixd time = let (dd, h) = tHour time `divMod` 24 in
