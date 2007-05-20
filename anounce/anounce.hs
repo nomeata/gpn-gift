@@ -1,9 +1,11 @@
 {-# OPTIONS_GHC -fimplicit-params #-}
 
+
 import Graphics.UI.Gtk
 import Graphics.Rendering.Cairo 
 import Text.Printf
-import System.Time
+
+import Time
 
 width :: Num a => a
 width = 1024
@@ -11,12 +13,6 @@ height :: Num a => a
 height = 768 
 
 data EventState = Passed | Running | Future 
-
-data Time = Time { tDay :: Int, tHour :: Int, tMin :: Int } deriving (Eq, Ord)
-data RunTime = RunTime { rtHour :: Int, rtMin :: Int } deriving (Eq, Ord)
-
-instance Show Time where
-	show time = printf "Tag %d − %02.0d:%02.0d" (tDay time) (tHour time) (tMin time)
 
 
 main = do
@@ -86,23 +82,12 @@ markup (lable, event) line = do
 		Future  -> setSourceRGB 0 0 0
 	showText (eName event)
 
-now = do
-	time <- getClockTime >>= toCalendarTime
-	return $ Time { tDay = ctDay time - 20, tHour = ctHour time, tMin = ctMin time}
-
 eName    (_, s, _, _, _) = s
 eRoom    (_, _, s, _, _) = s
 eTime    (_, _, _, t, _) = t
 eRunTime (_, _, _, _, t) = t
 eEndTime event = eTime event `addRunTime` eRunTime event
 
-addRunTime start rt= fix $ sum 
-  where sum = start {tHour = tHour start + rtHour rt, tMin = tMin start + rtMin rt}
-  	fix = fixd . fixh
-	fixh time = let (hd, m) = tMin time `divMod` 60 in
-			time {tHour = tHour time + hd, tMin = m}
-	fixd time = let (dd, h) = tHour time `divMod` 24 in
-			time {tDay = tDay time + dd, tHour = h}
 		
 test_data :: [(Int, String, String, Time, RunTime)]
 test_data = [
