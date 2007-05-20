@@ -33,11 +33,11 @@ import Data.Maybe
 main :: IO()
 main = withSocketsDo $ do
 	putStr "Starting up\n" 
-	g <- readFile "data/server.cnf" -- reading the server.cnf
-	w <- readFile (fromJust $ lookup "passwd" (read g:: Option))
-	let p = fromMaybe "autsch" $ lookup "port" (read g :: Option)
-	servSock <- listenOn $ PortNumber (fromIntegral (read (p) ::Int))
-	acceptloop servSock w True
+	conf <- readFile "data/server.cnf" -- reading the server.cnf
+	passFile <- readFile (fromJust $ lookup "passwd" (read conf :: Option))
+	let port = fromJust $ lookup "port" (read conf :: Option)
+	servSock <- listenOn $ PortNumber (fromIntegral (read (port) ::Int))
+	acceptloop servSock passFile True
 	putStr "See you in Space Cowboy...\n"
 ------------------------------------------------------------------------------------
 -- Database Stuff
@@ -47,17 +47,18 @@ main = withSocketsDo $ do
 -- Network Main Loop
 ------------------------------------------------------------------------------------
 acceptloop :: Socket -> String -> Bool -> IO()
-acceptloop a  b False = sClose a
-acceptloop a  b True = do
-		       (cHandle, cName, cPort) <- accept a
+acceptloop socket  pwdFile False = sClose socket
+acceptloop socket  pwdFile True = do
+		       (cHandle, cName, cPort) <- accept socket
 		       hSetBuffering cHandle LineBuffering
 		       putStr ("Incoming request from: " ++ show cName ++ "\n")
 		       putStr ("His Port is: " ++ show cPort  ++ "\n")
-		       u <- hGetLine cHandle
-		       putStr ("Client auth as: " ++ u ++ "\n")
-		       p <- hGetLine cHandle
+		       userName <- hGetLine cHandle
+		       putStr ("Client auth as: " ++ userName ++ "\n")
+		       let u = read pwdFile :: Passwd
+		       passwd <- hGetLine cHandle
 		       hClose cHandle
-		       sClose a
+		       sClose socket
 ------------------------------------------------------------------------------------
 -- Parser for the Password portection 
 ------------------------------------------------------------------------------------
