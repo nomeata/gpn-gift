@@ -21,20 +21,20 @@ main = do
 	canvas <- drawingAreaNew
 	windowSetResizable window False
 	widgetSetSizeRequest window width height
-	onButtonPress window $ const (widgetDestroy window >> return True)
-	onDestroy window mainQuit
-	onExpose canvas $ const $ render canvas
-	timeoutAdd (widgetQueueDraw canvas >> return True) 500
-	set window [containerChild := canvas]
-	widgetShowAll window
-	mainGUI
+	withImageSurfaceFromPNG "GPN6_logo.png" $ \logo -> do
+		onButtonPress window $ const (widgetDestroy window >> return True)
+		onDestroy window mainQuit
+		onExpose canvas $ const $ render canvas logo
+		timeoutAdd (widgetQueueDraw canvas >> return True) 500
+		set window [containerChild := canvas]
+		widgetShowAll window
+		mainGUI
 
-render canvas = do
+render canvas logo = do
 	time <- now
 	win <- widgetGetDrawWindow canvas
 	--(width, height) <- widgetGetSize canvas
-	withImageSurfaceFromPNG "GPN6_logo.png" $ \logo -> 
-		renderWithDrawable win $ renderC logo time test_data
+	renderWithDrawable win $ renderC logo time test_data
 
 renderC logo now events = do
 	selectFontFace "Mono" FontSlantNormal FontWeightNormal
