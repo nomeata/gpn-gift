@@ -6,6 +6,7 @@ import Graphics.Rendering.Cairo
 import Text.Printf
 
 import Time
+import DatT
 
 width :: Num a => a
 width = 1024
@@ -94,13 +95,6 @@ markup (lable, event) line = do
 	showText (eName event)
 	restore
 
-eName    (_, s, _, _, _) = s
-eRoom    (_, _, s, _, _) = s
-eTime    (_, _, _, t, _) = t
-eRunTime (_, _, _, _, t) = t
-eEndTime event = eTime event `addRunTime` eRunTime event
-
-		
 test_data :: [(Int, String, String, Time, RunTime)]
 test_data = [
 	(1,
