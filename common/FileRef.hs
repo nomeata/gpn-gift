@@ -1,12 +1,21 @@
 module FileRef (FileRef, newFileRef, readFileRef, writeFileRef) where
 
-data FileRef a = FileRef
+import System.FilePath
+import Data.IORef
 
-newFileRef :: FilePath -> IO (FileRef a)
-newFileRef = undefined
+data (Show a, Read a) => FileRef a = FR FilePath (IORef a)
 
-readFileRef :: FileRef a -> IO a
-readFileRef = undefined
+newFileRef :: (Show a, Read a) => FilePath -> IO (FileRef a)
+newFileRef path = do
+	absPath <- makeRelativeToCurrentDirectory path
+	content <- readFile absPath
+	ref <- newIORef (read content)
+	return $ FR absPath ref
 
-writeFileRef :: FileRef a -> a -> IO ()
-writeFileRef = undefined
+readFileRef :: (Show a, Read a) => FileRef a -> IO a
+readFileRef (FR _ ref) = readIORef ref
+
+writeFileRef :: (Show a, Read a) => FileRef a -> a -> IO ()
+writeFileRef (FR path ref) v = do
+	writeIORef ref v
+	writeFile path (show v)
