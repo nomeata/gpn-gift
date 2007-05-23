@@ -67,14 +67,16 @@ login h pwdFile = do
        	putStrLn ("Password Read")
 	auth_res <- auth pwdFile userName passwd 
        	case auth_res of
-		Nothing    -> return ()
+		Nothing    -> putStrLn "Login failed..."
 	 	Just perms -> return () -- here interaction
 			 	
 ------------------------------------------------------------------------------------
 -- Password portection 
 ------------------------------------------------------------------------------------
 
-auth pwdFile userName passwd = return Nothing
+auth pwdFile userName passwd = do
+	pwdData <- readFileRef pwdFile
+	return $ lookup (userName, passwd) pwdData
 
 ------------------------------------------------------------------------------------
 -- Network Comunication Parsing
