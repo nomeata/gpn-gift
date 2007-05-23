@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fimplicit-params #-}
 ------------------------------------------------------------------------------------
 --                server.hs - The GPN interaktiv Fahrplan Server                  --
 ------------------------------------------------------------------------------------
@@ -39,10 +40,13 @@ main :: IO()
 main = withSocketsDo $ do
 	putStr "Starting up\n" 
 	conf <- read `liftM` readFile "data/server.cnf" -- reading the server.cnf
-	passFile <- newFileRef (fromJust $ lookup "passwd" conf)
+	pwdFile <- newFileRef (fromJust $ lookup "passwd" conf) -- Implicit Parameter
+	let ?pwdFile = pwdFile :: FileRef Passwd
+	dataFile <- newFileRef "data/fahrplan.data"
+	let ?dataFile = dataFile :: FileRef Fahrplan
 	let port = read (fromJust $ lookup "port" conf) :: Int
 	servSock <- listenOn $ PortNumber (fromIntegral port)
-	acceptloop servSock passFile True
+	acceptloop servSock True
 	putStr "See you in Space Cowboy...\n"
 ------------------------------------------------------------------------------------
 -- Database Stuff
@@ -51,23 +55,22 @@ main = withSocketsDo $ do
 ------------------------------------------------------------------------------------
 -- Network Main Loop
 ------------------------------------------------------------------------------------
-acceptloop :: Socket -> FileRef Passwd -> Bool -> IO()
-acceptloop socket pwdFile False = sClose socket
-acceptloop socket pwdFile True = do
+acceptloop socket False = sClose socket
+acceptloop socket True = do
 	(cHandle, cName, cPort) <- accept socket
 	putStrLn ("Incoming request from: " ++ show cName)
      	putStrLn ("His Port is: " ++ show cPort)
 	hSetBuffering cHandle LineBuffering
-	login cHandle pwdFile
+	login cHandle
 	hClose cHandle
-	acceptloop socket pwdFile True
+	acceptloop socket True
 
-login h pwdFile = do
+login h = do
        	userName <- hGetLine h
        	putStrLn ("Client auth as: " ++ userName)
        	passwd <- hGetLine h
        	putStrLn ("Password Read")
-	auth_res <- auth pwdFile userName passwd 
+	auth_res <- auth  userName passwd 
        	case auth_res of
 		Nothing    -> putStrLn "Login failed..."
 	 	Just perms -> catch (talk h perms) $ \e -> do
@@ -78,8 +81,8 @@ login h pwdFile = do
 -- Password portection 
 ------------------------------------------------------------------------------------
 
-auth pwdFile userName passwd = do
-	pwdData <- readFileRef pwdFile
+auth userName passwd = do
+	pwdData <- readFileRef ?pwdFile
 	return $ lookup (userName, passwd) pwdData
 
 ------------------------------------------------------------------------------------
@@ -96,5 +99,8 @@ talk h perm = do
   		hPutStrLn h "Unimplemented Command"
 		talk h perm
 	
+------------------------------------------------------------------------------------
+-- Fahrplan DB Handling
+------------------------------------------------------------------------------------
 
 
