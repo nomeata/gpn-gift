@@ -25,6 +25,7 @@
 import System.IO
 import Network
 import Data.Maybe
+import Data.List
 import Control.Monad
 import Control.Exception
 import Prelude hiding (catch) -- We want catch from C.E
@@ -95,6 +96,12 @@ talk h perm = do
 		reply command
   where reply Quit = do
   		hPutStrLn h "Goodbye..."
+        reply (Commit e) = do
+  		result <- addToFahrplan e
+		case result of
+			Nothing  -> hPutStrLn h "Sucessfully added event to fahrplan"
+			Just why -> hPutStrLn h ("Could not add event: " ++ why)
+		talk h perm 
         reply _    = do
   		hPutStrLn h "Unimplemented Command"
 		talk h perm
@@ -103,4 +110,28 @@ talk h perm = do
 -- Fahrplan DB Handling
 ------------------------------------------------------------------------------------
 
+inRoom room fahrplan = filter (\e -> eRoom e == room) fahrplan
+
+sameRoom event = inRoom (eRoom event)
+
+sameTime e1 e2 = not ((eTime e1 < eTime e2 && eEndTime e1 < eTime e2) ||
+                      (eTime e2 < eTime e1 && eEndTime e2 < eTime e1))
+
+findConflict event fahrplan = find (sameTime event) relevants
+  where relevants = sameRoom event fahrplan
+
+setID (_,s,r,t,rt) id = (id,s,r,t,rt)
+
+addToFahrplan event = do
+	fahrplan <- readFileRef ?dataFile
+	let result = join $ find (isJust) [ -- Things to Check
+		if null (eName event) then Just "Leerer Name" else Nothing, 
+		(\e -> "Konflikt mit " ++ eName e) `fmap` findConflict event fahrplan
+		]
+	when (isNothing result) $ do
+		let high_id = maximum $ 0 : map (eID) fahrplan
+		let event' = setID event (succ high_id)
+		writeFileRef ?dataFile (event':fahrplan)	
+	return result
+		
 
