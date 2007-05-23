@@ -18,7 +18,9 @@ instance Read RunTime where
 	readsPrec d str = [(RunTime hour min,out)]
 	  where ((hour,min),out):_ = readsPrec d str 
 
+printTime :: Time -> String
 printTime  time = printf "Tag %d − %02.0d:%02.0d" (tDay time) (tHour time) (tMin time)
+printRunTime :: RunTime -> String
 printRunTime time = printf "%02.0dh%02.0d" (rtHour time) (rtMin time)
 
 now = do

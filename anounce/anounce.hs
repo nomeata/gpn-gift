@@ -80,7 +80,7 @@ label time event | eEndTime event < time  = (Passed,    event)
 markup (lable, event) line = do
 	save
 	let place_and_time = printf "[%s @ %s]"
-		(show (eTime event)) (eRoom event)
+		(printTime (eTime event)) (eRoom event)
 	let y = 50 * line
 	moveTo 20 y
 	setFontSize 20
