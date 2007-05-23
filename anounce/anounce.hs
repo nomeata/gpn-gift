@@ -62,7 +62,6 @@ clock time = do
 	setFontSize 20
 	setSourceRGB 1 1 1
   	(TextExtents xb yb w h _ _) <- textExtents text
-	showText (show xb)
 	moveTo (width - w - pad) (h + pad)
 	showText text
 	restore
