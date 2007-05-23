@@ -23,8 +23,11 @@
 
 import System.IO
 import Network
-import DatT
 import Data.Maybe
+import Control.Monad
+
+import FileRef
+import DatT
 
 ------------------------------------------------------------------------------------
 -- Main Loop
@@ -33,10 +36,10 @@ import Data.Maybe
 main :: IO()
 main = withSocketsDo $ do
 	putStr "Starting up\n" 
-	conf <- readFile "data/server.cnf" -- reading the server.cnf
-	passFile <- readFile (fromJust $ lookup "passwd" (read conf :: Option))
-	let port = fromJust $ lookup "port" (read conf :: Option)
-	servSock <- listenOn $ PortNumber (fromIntegral (read (port) ::Int))
+	conf <- read `liftM` readFile "data/server.cnf" -- reading the server.cnf
+	passFile <- newFileRef (fromJust $ lookup "passwd" conf)
+	let port = read (fromJust $ lookup "port" conf) :: Int
+	servSock <- listenOn $ PortNumber (fromIntegral port)
 	acceptloop servSock passFile True
 	putStr "See you in Space Cowboy...\n"
 ------------------------------------------------------------------------------------
@@ -46,22 +49,32 @@ main = withSocketsDo $ do
 ------------------------------------------------------------------------------------
 -- Network Main Loop
 ------------------------------------------------------------------------------------
-acceptloop :: Socket -> String -> Bool -> IO()
-acceptloop socket  pwdFile False = sClose socket
-acceptloop socket  pwdFile True = do
-		       (cHandle, cName, cPort) <- accept socket
-		       hSetBuffering cHandle LineBuffering
-		       putStr ("Incoming request from: " ++ show cName ++ "\n")
-		       putStr ("His Port is: " ++ show cPort  ++ "\n")
-		       userName <- hGetLine cHandle
-		       putStr ("Client auth as: " ++ userName ++ "\n")
-		       let u = read pwdFile :: Passwd
-		       passwd <- hGetLine cHandle
-		       hClose cHandle
-		       sClose socket
+acceptloop :: Socket -> FileRef Passwd -> Bool -> IO()
+acceptloop socket pwdFile False = sClose socket
+acceptloop socket pwdFile True = do
+	(cHandle, cName, cPort) <- accept socket
+	putStrLn ("Incoming request from: " ++ show cName)
+     	putStrLn ("His Port is: " ++ show cPort)
+	hSetBuffering cHandle LineBuffering
+	login cHandle pwdFile
+	hClose cHandle
+	acceptloop socket pwdFile True
+
+login h pwdFile = do
+       	userName <- hGetLine h
+       	putStrLn ("Client auth as: " ++ userName)
+       	passwd <- hGetLine h
+       	putStrLn ("Password Read")
+	auth_res <- auth pwdFile userName passwd 
+       	case auth_res of
+		Nothing    -> return ()
+	 	Just perms -> return () -- here interaction
+			 	
 ------------------------------------------------------------------------------------
--- Parser for the Password portection 
+-- Password portection 
 ------------------------------------------------------------------------------------
+
+auth pwdFile userName passwd = return Nothing
 
 ------------------------------------------------------------------------------------
 -- Network Comunication Parsing
