@@ -25,6 +25,8 @@ import System.IO
 import Network
 import Data.Maybe
 import Control.Monad
+import Control.Exception
+import Prelude hiding (catch) -- We want catch from C.E
 
 import FileRef
 import DatT
@@ -68,7 +70,9 @@ login h pwdFile = do
 	auth_res <- auth pwdFile userName passwd 
        	case auth_res of
 		Nothing    -> putStrLn "Login failed..."
-	 	Just perms -> return () -- here interaction
+	 	Just perms -> catch (talk h perms) $ \e -> do
+				 hPutStrLn h   "Some Error Happened, Good bye"
+				 putStrLn    $ "Error" ++ show e
 			 	
 ------------------------------------------------------------------------------------
 -- Password portection 
@@ -81,4 +85,16 @@ auth pwdFile userName passwd = do
 ------------------------------------------------------------------------------------
 -- Network Comunication Parsing
 ------------------------------------------------------------------------------------
+
+talk h perm = do
+		command <- read `liftM` hGetLine h
+		putStrLn $ "Got command" ++ show command
+		reply command
+  where reply Quit = do
+  		hPutStrLn h "Goodbye..."
+        reply _    = do
+  		hPutStrLn h "Unimplemented Command"
+		talk h perm
+	
+
 
