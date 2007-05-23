@@ -91,7 +91,7 @@ auth userName passwd = do
 
 talk h perm = do
 		command <- read `liftM` hGetLine h
-		putStrLn $ "Got command" ++ show command
+		putStrLn $ "Got command " ++ show command
 		reply command
   where reply Quit = do
   		hPutStrLn h "Goodbye..."
