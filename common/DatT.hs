@@ -6,10 +6,13 @@ type Option = [(String, String)]
 
 type Fahrplan = [Event]
 
-type Event = (Integer, String, String, Time, RunTime)
+data Room = Chaos | HackCenter | Balcony deriving (Eq, Show, Read)
 
+type Event = (Integer, String, Room, Time, RunTime)
+
+eID      (n, s, _, _, _) = n
 eName    (_, s, _, _, _) = s
-eRoom    (_, _, s, _, _) = s
+eRoom    (_, _, r, _, _) = r
 eTime    (_, _, _, t, _) = t
 eRunTime (_, _, _, _, t) = t
 eEndTime event = eTime event `addRunTime` eRunTime event

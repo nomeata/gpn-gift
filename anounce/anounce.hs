@@ -80,8 +80,8 @@ label time event | eEndTime event < time  = (Passed,    event)
 
 markup (lable, event) line = do
 	save
-	let place_and_time = printf "[%s @ %s]"
-		(printTime (eTime event)) (eRoom event)
+	let place_and_time = printf "[%s @ %s]" 
+		(printTime (eTime event)) (show (eRoom event))
 	let y = 50 * line
 	moveTo 20 y
 	setFontSize 20
@@ -95,23 +95,23 @@ markup (lable, event) line = do
 	showText (eName event)
 	restore
 
-test_data :: [(Int, String, String, Time, RunTime)]
+test_data :: Fahrplan
 test_data = [
 	(1,
 	"Gulasch",
-	"Chaos",
+	Chaos,
 	Time 0 12 23,
 	RunTime 1 15
 	),
 	(1,
 	"Gulaschgh",
-	"Chaos",
+	Chaos,
 	Time 1 00 23,
 	RunTime 1 15
 	),
 	(2,
 	"Hackfleisch",
-	"Ordnung",
+	HackCenter,
 	Time 1 15 23,
 	RunTime 1 30
 	)
