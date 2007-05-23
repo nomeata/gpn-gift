@@ -26,6 +26,7 @@ import System.IO
 import Network
 import Data.Maybe
 import Data.List
+import Data.Char
 import Control.Monad
 import Control.Exception
 import Prelude hiding (catch) -- We want catch from C.E
@@ -122,9 +123,12 @@ findConflict event fahrplan = find (sameTime event) relevants
 
 setID (_,s,r,t,rt) id = (id,s,r,t,rt)
 
+validChar = not . isControl -- Hauptsache keine NewLines. Sonst noch Wünsche?
+
 addToFahrplan event = do
 	fahrplan <- readFileRef ?dataFile
 	let result = join $ find (isJust) [ -- Things to Check
+		if not (all validChar (eName event)) then Just "Ungültiger Eventname" else Nothing,
 		if null (eName event) then Just "Leerer Name" else Nothing, 
 		(\e -> "Konflikt mit " ++ eName e) `fmap` findConflict event fahrplan
 		]
