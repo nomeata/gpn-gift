@@ -22,9 +22,9 @@ main = do
 	canvas <- drawingAreaNew
 	windowSetResizable window False
 	widgetSetSizeRequest window width height
+	onButtonPress window $ const (widgetDestroy window >> return True)
+	onDestroy window mainQuit
 	withImageSurfaceFromPNG "GPN6_logo.png" $ \logo -> do
-		onButtonPress window $ const (widgetDestroy window >> return True)
-		onDestroy window mainQuit
 		onExpose canvas $ const $ render canvas logo
 		timeoutAdd (widgetQueueDraw canvas >> return True) 500
 		set window [containerChild := canvas]
