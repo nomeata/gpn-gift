@@ -125,11 +125,13 @@ setID (_,s,r,t,rt) id = (id,s,r,t,rt)
 
 validChar = not . isControl -- Hauptsache keine NewLines. Sonst noch Wünsche?
 
+errorIf msg test = if test then Just msg else Nothing
+
 addToFahrplan event = do
 	fahrplan <- readFileRef ?dataFile
 	let result = join $ find (isJust) [ -- Things to Check
-		if not (all validChar (eName event)) then Just "Ungültiger Eventname" else Nothing,
-		if null (eName event) then Just "Leerer Name" else Nothing, 
+		"Ungültiger Eventname" `errorIf` not (all validChar (eName event)),
+		"Leerer Name" `errorIf` null (eName event),
 		(\e -> "Konflikt mit " ++ eName e) `fmap` findConflict event fahrplan
 		]
 	when (isNothing result) $ do
