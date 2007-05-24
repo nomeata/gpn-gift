@@ -119,7 +119,7 @@ talk h perm = do
 		talk h perm 
         reply ShowFahrplan = do
 		fahrplan <- readFileRef ?dataFile
-		hPutStrLn h (show fahrplan)
+		hPrint h fahrplan
 		talk h perm 
 	{- Yay, GHC tells me that this can not happen! 
         reply _    = do

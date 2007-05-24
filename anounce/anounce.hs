@@ -39,7 +39,7 @@ main = do
 	login h conf
 
 	flip timeoutAdd 100 $ do
-		hPutStrLn h "ShowFahrplan"
+		hPrint h ShowFahrplan
 		fahrplan_raw <- hGetLine h
 		writeIORef fahrplan_ref (read fahrplan_raw)
 		widgetQueueDraw canvas
