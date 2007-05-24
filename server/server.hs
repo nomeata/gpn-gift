@@ -29,6 +29,7 @@ import Data.List
 import Data.Char
 import Control.Monad
 import Control.Exception
+import Control.Concurrent
 import Prelude hiding (catch) -- We want catch from C.E
 
 import FileRef
@@ -60,11 +61,12 @@ main = withSocketsDo $ do
 acceptloop socket False = sClose socket
 acceptloop socket True = do
 	(cHandle, cName, cPort) <- accept socket
-	putStrLn ("Incoming request from: " ++ show cName)
-     	putStrLn ("His Port is: " ++ show cPort)
-	hSetBuffering cHandle LineBuffering
-	login cHandle
-	hClose cHandle
+	forkIO $ flip finally (hClose cHandle) $ do
+		putStrLn ("Incoming request from: " ++ show cName)
+		putStrLn ("His Port is: " ++ show cPort)
+		hSetBuffering cHandle LineBuffering
+		login cHandle
+		hClose cHandle
 	acceptloop socket True
 
 login h = do
