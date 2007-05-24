@@ -103,6 +103,12 @@ talk h perm = do
 			Nothing  -> hPutStrLn h "Sucessfully added event to fahrplan"
 			Just why -> hPutStrLn h ("Could not add event: " ++ why)
 		talk h perm 
+        reply (Edit e) = do
+  		result <- modifyFahrplan e
+		case result of
+			Nothing  -> hPutStrLn h "Sucessfully edited event"
+			Just why -> hPutStrLn h ("Could not edit event: " ++ why)
+		talk h perm 
         reply _    = do
   		hPutStrLn h "Unimplemented Command"
 		talk h perm
@@ -138,6 +144,21 @@ addToFahrplan event = do
 		let high_id = maximum $ 0 : map (eID) fahrplan
 		let event' = setID event (succ high_id)
 		writeFileRef ?dataFile (event':fahrplan)	
+	return result
+
+
+modifyFahrplan event = do 
+	fahrplan <- readFileRef ?dataFile
+	let rest_fahrplan = filter (\e -> eID e /= eID event) fahrplan
+	let orig_event = find (\e -> eID e == eID event) fahrplan
+	let result = join $ find (isJust) [ -- Things to Check
+		"Zu bearbeitendes Event nicht verfügbar" `errorIf` isNothing orig_event,
+		"Ungültiger Eventname" `errorIf` not (all validChar (eName event)),
+		"Leerer Name" `errorIf` null (eName event),
+		(\e -> "Konflikt mit " ++ eName e) `fmap` findConflict event rest_fahrplan
+		]
+	when (isNothing result) $ do
+		writeFileRef ?dataFile (event:rest_fahrplan)	
 	return result
 		
 
