@@ -115,6 +115,10 @@ talk h perm = do
 			Nothing  -> hPutStrLn h "Sucessfully removed event"
 			Just why -> hPutStrLn h ("Could not remove event: " ++ why)
 		talk h perm 
+        reply ShowFahrplan = do
+		fahrplan <- readFileRef ?dataFile
+		hPutStrLn h (show fahrplan)
+		talk h perm 
 	{- Yay, GHC tells me that this can not happen! 
         reply _    = do
   		hPutStrLn h "Unimplemented Command"

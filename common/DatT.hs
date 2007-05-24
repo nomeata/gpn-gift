@@ -24,5 +24,6 @@ data ClientCommand =
 	Commit Event   |
 	Delete Integer | -- Event Id
 	Edit   Event   |
+	ShowFahrplan   |
 	Quit
   deriving (Show, Read)
