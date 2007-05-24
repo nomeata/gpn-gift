@@ -109,9 +109,17 @@ talk h perm = do
 			Nothing  -> hPutStrLn h "Sucessfully edited event"
 			Just why -> hPutStrLn h ("Could not edit event: " ++ why)
 		talk h perm 
+        reply (Delete id) = do
+  		result <- removeFromFahrplan id
+		case result of
+			Nothing  -> hPutStrLn h "Sucessfully removed event"
+			Just why -> hPutStrLn h ("Could not remove event: " ++ why)
+		talk h perm 
+	{- Yay, GHC tells me that this can not happen! 
         reply _    = do
   		hPutStrLn h "Unimplemented Command"
 		talk h perm
+	-}
 	
 ------------------------------------------------------------------------------------
 -- Fahrplan DB Handling
@@ -146,7 +154,6 @@ addToFahrplan event = do
 		writeFileRef ?dataFile (event':fahrplan)	
 	return result
 
-
 modifyFahrplan event = do 
 	fahrplan <- readFileRef ?dataFile
 	let rest_fahrplan = filter (\e -> eID e /= eID event) fahrplan
@@ -159,6 +166,17 @@ modifyFahrplan event = do
 		]
 	when (isNothing result) $ do
 		writeFileRef ?dataFile (event:rest_fahrplan)	
+	return result
+		
+removeFromFahrplan id = do 
+	fahrplan <- readFileRef ?dataFile
+	let rest_fahrplan = filter (\e -> eID e /= id) fahrplan
+	let orig_event = find (\e -> eID e == id) fahrplan
+	let result = join $ find (isJust) [ -- Things to Check
+		"Zu löschendes Event nicht verfügbar" `errorIf` isNothing orig_event
+		]
+	when (isNothing result) $ do
+		writeFileRef ?dataFile rest_fahrplan
 	return result
 		
 
