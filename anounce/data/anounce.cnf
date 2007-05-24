@@ -1,3 +1,1 @@
-<name>GPN6</name>
-<ip>127.0.0.1<ip>
-<port>2342</port>
+[("port","2342")]

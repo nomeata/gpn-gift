@@ -5,6 +5,10 @@ import Graphics.UI.Gtk
 import Graphics.Rendering.Cairo 
 import Text.Printf
 import Data.IORef
+import Data.Maybe
+import Control.Monad
+import IO
+import Network
 
 import Time
 import DatT
@@ -27,12 +31,30 @@ main = do
 	widgetSetSizeRequest window width height
 	onButtonPress window $ const (widgetDestroy window >> return True)
 	onDestroy window mainQuit
+
+	conf <- read `liftM` readFile "data/anounce.cnf" -- reading the server.cnf
+	let port = read (fromJust $ lookup "port" conf) :: Int
+	h <- connectTo "localhost"  (PortNumber (fromIntegral port))
+	hSetBuffering h LineBuffering
+	login h conf
+
+	flip timeoutAdd 100 $ do
+		hPutStrLn h "ShowFahrplan"
+		fahrplan_raw <- hGetLine h
+		writeIORef fahrplan_ref (read fahrplan_raw)
+		widgetQueueDraw canvas
+		return True
+
 	withImageSurfaceFromPNG "GPN6_logo.png" $ \logo -> do
 		onExpose canvas $ const $ render canvas logo fahrplan_ref
 		timeoutAdd (widgetQueueDraw canvas >> return True) 500
 		set window [containerChild := canvas]
 		widgetShowAll window
 		mainGUI
+	
+login h conf = do
+	hPutStrLn h "guest"
+	hPutStrLn h "guest"
 
 render canvas logo fahrplan_ref = do
 	time <- now
