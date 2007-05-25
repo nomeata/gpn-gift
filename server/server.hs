@@ -33,6 +33,8 @@ import Control.Concurrent
 import Prelude hiding (catch) -- We want catch from C.E
 
 import FileRef
+import MSignal
+
 import DatT
 
 ------------------------------------------------------------------------------------
@@ -47,6 +49,8 @@ main = withSocketsDo $ do
 	let ?pwdFile = pwdFile :: FileRef Passwd
 	dataFile <- newFileRef "data/fahrplan.data"
 	let ?dataFile = dataFile :: FileRef Fahrplan
+	changeS <- newMSignal
+	let ?changeS = changeS
 	let port = read (fromJust $ lookup "port" conf) :: Int
 	servSock <- listenOn $ PortNumber (fromIntegral port)
 	acceptloop servSock True
@@ -101,23 +105,31 @@ talk h perm = do
   		hPutStrLn h "Goodbye..."
         reply (Commit e) = do
   		result <- addToFahrplan e
+		when (isNothing result) $ sendMSignal ?changeS ()
 		case result of
 			Nothing  -> hPutStrLn h "Sucessfully added event to fahrplan"
 			Just why -> hPutStrLn h ("Could not add event: " ++ why)
 		talk h perm 
         reply (Edit e) = do
   		result <- modifyFahrplan e
+		when (isNothing result) $ sendMSignal ?changeS ()
 		case result of
 			Nothing  -> hPutStrLn h "Sucessfully edited event"
 			Just why -> hPutStrLn h ("Could not edit event: " ++ why)
 		talk h perm 
         reply (Delete id) = do
   		result <- removeFromFahrplan id
+		when (isNothing result) $ sendMSignal ?changeS ()
 		case result of
 			Nothing  -> hPutStrLn h "Sucessfully removed event"
 			Just why -> hPutStrLn h ("Could not remove event: " ++ why)
 		talk h perm 
         reply ShowFahrplan = do
+		fahrplan <- readFileRef ?dataFile
+		hPrint h fahrplan
+		talk h perm 
+        reply Listen = do
+		receiveMSignal ?changeS
 		fahrplan <- readFileRef ?dataFile
 		hPrint h fahrplan
 		talk h perm 

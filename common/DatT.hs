@@ -25,5 +25,6 @@ data ClientCommand =
 	Delete Integer | -- Event Id
 	Edit   Event   |
 	ShowFahrplan   |
+	Listen         | 
 	Quit
   deriving (Show, Read)
