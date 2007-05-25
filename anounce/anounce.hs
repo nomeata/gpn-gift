@@ -3,6 +3,8 @@
 
 import Graphics.UI.Gtk
 import Graphics.Rendering.Cairo 
+import System.Glib.MainLoop
+import Control.Concurrent
 import Text.Printf
 import Data.IORef
 import Data.Maybe
@@ -37,13 +39,18 @@ main = do
 	h <- connectTo "localhost"  (PortNumber (fromIntegral port))
 	hSetBuffering h LineBuffering
 	login h conf
+	hPrint h ShowFahrplan
+	fahrplan_raw <- hGetLine h
+	writeIORef fahrplan_ref (read fahrplan_raw)
 
-	flip timeoutAdd 100 $ do
-		hPrint h ShowFahrplan
+	forkIO $ sequence_ $ repeat $ do
+		hPrint h Listen
 		fahrplan_raw <- hGetLine h
 		writeIORef fahrplan_ref (read fahrplan_raw)
-		widgetQueueDraw canvas
+		hPrint h Listen
 		return True
+		widgetQueueDraw canvas
+
 
 	withImageSurfaceFromPNG "GPN6_logo.png" $ \logo -> do
 		onExpose canvas $ const $ render canvas logo fahrplan_ref
