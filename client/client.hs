@@ -3,10 +3,11 @@ import Graphics.UI.Gtk.Glade
 import qualified Graphics.UI.Gtk.ModelView as New
 import Network
 import Control.Monad
-import IO
+import IO 
 import Data.Maybe
 import Data.List
 import Data.Ord
+import Control.Exception
 
 import Time
 import DatT
@@ -40,6 +41,21 @@ setup_liststore fahrplan tv edit = do
 		event <- New.listStoreGetValue fahrplan n
 		let new = event {eName = text}
 		when (new /= event) $ edit new
+	New.onEdited renderer3 $ \[n] text -> do
+		event <- New.listStoreGetValue fahrplan n
+		handle (\_ -> return ()) $ do
+			let new = event {eRoom = (read text)}
+			when (new /= event) $ edit new
+	New.onEdited renderer4 $ \[n] text -> do
+		event <- New.listStoreGetValue fahrplan n
+		handle (\_ -> return ()) $ do
+			let new = event {eTime = (read text)}
+			when (new /= event) $ edit new
+	New.onEdited renderer5 $ \[n] text -> do
+		event <- New.listStoreGetValue fahrplan n
+		handle (\_ -> return ()) $ do
+			let new = event {eRunTime = (read text)}
+			when (new /= event) $ edit new
 	New.cellLayoutPackStart col1 renderer1 True
 	New.cellLayoutPackStart col2 renderer2 True
 	New.cellLayoutPackStart col3 renderer3 True
