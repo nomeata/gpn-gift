@@ -5,30 +5,41 @@ import Network
 import Control.Monad
 import IO
 import Data.Maybe
+import Data.List
+import Data.Ord
 
 import Time
 import DatT
 
 empty_event :: Event
-empty_event = (0,"",Chaos,read "(0,0,0)", read "(0,0)")
+empty_event = Event 0 "" Chaos (read "(0,0,0)") (read "(0,0)")
 
-setup_liststore tv = do
-	fahrplan <- New.listStoreNew [empty_event]
+setup_liststore fahrplan tv edit = do
 	col1 <- New.treeViewColumnNew
 	col2 <- New.treeViewColumnNew
 	col3 <- New.treeViewColumnNew
 	col4 <- New.treeViewColumnNew
 	col5 <- New.treeViewColumnNew
-	set col1 [ New.treeViewColumnTitle := "ID" ]
-	set col2 [ New.treeViewColumnTitle := "Name" ]
-	set col3 [ New.treeViewColumnTitle := "Raum" ]
-	set col4 [ New.treeViewColumnTitle := "Zeit" ]
-	set col5 [ New.treeViewColumnTitle := "Dauer" ]
+	set col1 [ New.treeViewColumnTitle := "ID"   , New.treeViewColumnMinWidth := 20  ]
+	set col2 [ New.treeViewColumnTitle := "Name" , New.treeViewColumnMinWidth := 100 ]
+	set col3 [ New.treeViewColumnTitle := "Raum" , New.treeViewColumnMinWidth := 100 ]
+	set col4 [ New.treeViewColumnTitle := "Zeit" , New.treeViewColumnMinWidth := 100 ]
+	set col5 [ New.treeViewColumnTitle := "Dauer", New.treeViewColumnMinWidth := 100 ]
 	renderer1 <- New.cellRendererTextNew
 	renderer2 <- New.cellRendererTextNew
 	renderer3 <- New.cellRendererTextNew
+	--renderer3 <- New.cellRendererComboNew
 	renderer4 <- New.cellRendererTextNew
 	renderer5 <- New.cellRendererTextNew
+	set renderer2 [ New.cellEditable := True ]
+	set renderer3 [ New.cellEditable := True ] 
+	set renderer3 [ New.cellEditable := True ] --, New.cellComboHasEntry := False ]
+	set renderer4 [ New.cellEditable := True ]
+	set renderer5 [ New.cellEditable := True ]
+	New.onEdited renderer2 $ \[n] text -> do
+		event <- New.listStoreGetValue fahrplan n
+		let new = event {eName = text}
+		when (new /= event) $ edit new
 	New.cellLayoutPackStart col1 renderer1 True
 	New.cellLayoutPackStart col2 renderer2 True
 	New.cellLayoutPackStart col3 renderer3 True
@@ -62,21 +73,36 @@ main = do
 
         Just xml <- xmlNew "client.glade"
         window <- xmlGetWidget xml castToWindow "window1"
+	windowResize window 500 300
 
 	tv <- xmlGetWidget xml New.castToTreeView "treeview1"
 	b_quit <- xmlGetWidget xml castToButton "quit"
 	b_refresh <- xmlGetWidget xml castToButton "refresh"
 
-	-- based on /usr/share/doc/gtk2hs-doc/examples/treeList/ListDemo.hs
-	fahrplan <- setup_liststore tv
+	fahrplan <- New.listStoreNew [empty_event]
 
-	onClicked b_quit $ do widgetDestroy window
-	
-	onClicked b_refresh $ do
+	let update_fahrplan = do 
 		hPrint h ShowFahrplan
-		res <- read `fmap` hGetLine h
+		res <- ( sortBy (comparing eTime) . read ) `fmap` hGetLine h
+
 		New.listStoreClear fahrplan 
 		mapM_ (New.listStoreAppend fahrplan) res
+	
+	update_fahrplan
+
+	-- based on /usr/share/doc/gtk2hs-doc/examples/treeList/ListDemo.hs
+	setup_liststore fahrplan tv $ \event -> do
+		hPrint h (Edit event)
+		reply <- hGetLine h 
+		dialog <- messageDialogNew (Just window) [] MessageInfo ButtonsOk reply
+		dialogRun dialog
+		widgetDestroy dialog
+		update_fahrplan
+		return ()
+
+	onClicked b_quit $ widgetDestroy window
+	
+	onClicked b_refresh update_fahrplan
 
 	onDestroy window $ do 
 		writable <- hIsWritable h
@@ -84,6 +110,7 @@ main = do
 			hPrint h Quit
 		  else  return ()
 		mainQuit
+
 	mainGUI
 
 login h conf = do
