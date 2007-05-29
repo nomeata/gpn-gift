@@ -8,6 +8,8 @@ import Control.Concurrent
 import Text.Printf
 import Data.IORef
 import Data.Maybe
+import Data.List
+import Data.Ord
 import Control.Monad
 import IO
 import Network
@@ -101,7 +103,8 @@ clock time = do
 	restore
 
 fahrplan now events = do
-	let show_events = take 10 $ filter (not . isPassed) $ map (label now) $ events
+	let show_events = take 10 $ filter (not . isPassed) $
+				map (label now) $ sortBy (comparing eTime) $ events
 	mapM_ (uncurry markup) (zip show_events [1..])
 
 isPassed (Passed, _) = True
