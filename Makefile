@@ -3,6 +3,7 @@ all: progs doc
 progs:
 	make -C anounce
 	make -C server
+	make -C client
 
 test: progs
 	echo "Done testing gift..."
