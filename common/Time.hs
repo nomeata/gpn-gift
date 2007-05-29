@@ -25,7 +25,7 @@ printRunTime time = printf "%02.0dh%02.0d" (rtHour time) (rtMin time)
 
 now = do
 	time <- getClockTime >>= toCalendarTime
-	return $ Time { tDay = ctDay time - 23, tHour = ctHour time, tMin = ctMin time}
+	return $ Time { tDay = ctDay time - 29, tHour = ctHour time, tMin = ctMin time}
 
 addRunTime start rt= fix $ sum 
   where sum = start {tHour = tHour start + rtHour rt, tMin = tMin start + rtMin rt}
