@@ -22,7 +22,7 @@ setup_liststore fahrplan tv edit = do
 	col4 <- New.treeViewColumnNew
 	col5 <- New.treeViewColumnNew
 	set col1 [ New.treeViewColumnTitle := "ID"   , New.treeViewColumnMinWidth := 20  ]
-	set col2 [ New.treeViewColumnTitle := "Name" , New.treeViewColumnMinWidth := 100 ]
+	set col2 [ New.treeViewColumnTitle := "Name" , New.treeViewColumnMinWidth := 200 ]
 	set col3 [ New.treeViewColumnTitle := "Raum" , New.treeViewColumnMinWidth := 100 ]
 	set col4 [ New.treeViewColumnTitle := "Zeit" , New.treeViewColumnMinWidth := 100 ]
 	set col5 [ New.treeViewColumnTitle := "Dauer", New.treeViewColumnMinWidth := 100 ]
@@ -94,6 +94,7 @@ main = do
 	tv <- xmlGetWidget xml New.castToTreeView "treeview1"
 	b_quit <- xmlGetWidget xml castToButton "quit"
 	b_refresh <- xmlGetWidget xml castToButton "refresh"
+	b_delete <- xmlGetWidget xml castToButton "delete"
 
 	fahrplan <- New.listStoreNew [empty_event]
 
@@ -107,16 +108,28 @@ main = do
 	
 	update_fahrplan
 
-	-- based on /usr/share/doc/gtk2hs-doc/examples/treeList/ListDemo.hs
-	setup_liststore fahrplan tv $ \event -> do
-		if eID event == 0 then hPrint h (Commit event)
-		                  else hPrint h (Edit event)
+	let send_command cmd = do
+		hPrint h cmd 
 		reply <- hGetLine h 
 		dialog <- messageDialogNew (Just window) [] MessageInfo ButtonsOk reply
 		dialogRun dialog
 		widgetDestroy dialog
 		update_fahrplan
 		return ()
+
+
+	-- based on /usr/share/doc/gtk2hs-doc/examples/treeList/ListDemo.hs
+	setup_liststore fahrplan tv $ \event -> do
+		if eID event == 0 then send_command (Commit event)
+		                  else send_command (Edit event)
+
+	onClicked b_delete $ do
+		(path,_) <- New.treeViewGetCursor tv
+		case path of
+			[] -> return ()
+			[n] -> do
+				event <- New.listStoreGetValue fahrplan n
+				when (eID event /= 0) $ send_command (Delete (eID event))
 
 	onClicked b_quit $ widgetDestroy window
 	
