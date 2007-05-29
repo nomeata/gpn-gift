@@ -103,12 +103,14 @@ main = do
 
 		New.listStoreClear fahrplan 
 		mapM_ (New.listStoreAppend fahrplan) res
+		New.listStoreAppend fahrplan empty_event
 	
 	update_fahrplan
 
 	-- based on /usr/share/doc/gtk2hs-doc/examples/treeList/ListDemo.hs
 	setup_liststore fahrplan tv $ \event -> do
-		hPrint h (Edit event)
+		if eID event == 0 then hPrint h (Commit event)
+		                  else hPrint h (Edit event)
 		reply <- hGetLine h 
 		dialog <- messageDialogNew (Just window) [] MessageInfo ButtonsOk reply
 		dialogRun dialog
