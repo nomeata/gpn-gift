@@ -9,21 +9,17 @@ type Option = [(String, String)]
 type Fahrplan = [Event]
 
 -- | An enumeration of rooms at the GPN6
-data Room = Chaos | HackCenter | Balcony deriving (Eq, Show, Read)
+data Room = Chaos | HackCenter | Balcony deriving (Eq, Show, Read, Ord)
 
 -- | An event, containing fields for: ID, Name, Room, Start Time, End Time. To be accessed using the following accessors.
-type Event = (Integer, String, Room, Time, RunTime)
+data Event = Event {
+	eID	:: Integer,
+	eName	:: String,
+	eRoom   :: Room,
+	eTime	:: Time,
+	eRunTime:: RunTime
+	} deriving (Eq, Ord, Show, Read)
 
-eID	:: Event -> Integer
-eID      (n, s, _, _, _) = n
-eName	:: Event -> String
-eName    (_, s, _, _, _) = s
-eRoom	:: Event -> Room
-eRoom    (_, _, r, _, _) = r
-eTime	:: Event -> Time
-eTime    (_, _, _, t, _) = t
-eRunTime:: Event -> RunTime
-eRunTime (_, _, _, _, t) = t
 eEndTime:: Event -> Time
 eEndTime event = eTime event `addRunTime` eRunTime event
 

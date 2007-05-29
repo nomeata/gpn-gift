@@ -153,8 +153,6 @@ sameTime e1 e2 = not ((eTime e1 < eTime e2 && eEndTime e1 < eTime e2) ||
 findConflict event fahrplan = find (sameTime event) relevants
   where relevants = sameRoom event fahrplan
 
-setID (_,s,r,t,rt) id = (id,s,r,t,rt)
-
 validChar = not . isControl -- Hauptsache keine NewLines. Sonst noch Wünsche?
 
 errorIf msg test = if test then Just msg else Nothing
@@ -168,7 +166,7 @@ addToFahrplan event = do
 		]
 	when (isNothing result) $ do
 		let high_id = maximum $ 0 : map (eID) fahrplan
-		let event' = setID event (succ high_id)
+		let event' = event { eID = succ high_id}
 		writeFileRef ?dataFile (event':fahrplan)	
 	return result
 

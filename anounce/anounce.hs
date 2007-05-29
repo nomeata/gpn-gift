@@ -128,28 +128,6 @@ markup (lable, event) line = do
 	showText (eName event)
 	restore
 
-test_data :: Fahrplan
-test_data = [
-	(1,
-	"Gulasch",
-	Chaos,
-	Time 0 12 23,
-	RunTime 1 15
-	),
-	(1,
-	"Gulaschgh",
-	Chaos,
-	Time 1 00 23,
-	RunTime 1 15
-	),
-	(2,
-	"Hackfleisch",
-	HackCenter,
-	Time 1 15 23,
-	RunTime 1 30
-	)
-	]
-
 
 foreach :: (Monad m) => [a] -> (a -> m b) -> m [b]
 foreach = flip mapM
