@@ -1,3 +1,4 @@
-[(("guest","guest"),["update"]),
-(("frederik","foo"),["All","edit"])]
+[(("guest","guest"),[CanRead]),
+(("admin","admin"),[CanRead, CanCommit, CanEdit])
+]
 
