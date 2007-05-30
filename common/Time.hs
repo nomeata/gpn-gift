@@ -23,9 +23,10 @@ printTime  time = printf "Tag %d − %02.0d:%02.0d" (tDay time) (tHour time) (tM
 printRunTime :: RunTime -> String
 printRunTime time = printf "%02.0dh%02.0d" (rtHour time) (rtMin time)
 
+now :: IO (Time)
 now = do
 	time <- getClockTime >>= toCalendarTime
-	return $ Time { tDay = ctDay time - 29, tHour = ctHour time, tMin = ctMin time}
+	return $ Time { tDay = ctDay time - 00, tHour = ctHour time, tMin = ctMin time}
 
 addRunTime start rt= fix $ sum 
   where sum = start {tHour = tHour start + rtHour rt, tMin = tMin start + rtMin rt}
