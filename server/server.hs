@@ -104,34 +104,44 @@ talk h perm = do
   where reply Quit = do
   		hPutStrLn h "Goodbye..."
         reply (Commit e) = do
-  		result <- addToFahrplan e
-		when (isNothing result) $ sendMSignal ?changeS ()
-		case result of
-			Nothing  -> hPutStrLn h "Sucessfully added event to fahrplan"
-			Just why -> hPutStrLn h ("Could not add event: " ++ why)
+		if CanCommit `elem` perm then do
+			result <- addToFahrplan e
+			when (isNothing result) $ sendMSignal ?changeS ()
+			case result of
+				Nothing  -> hPutStrLn h "Sucessfully added event to fahrplan"
+				Just why -> hPutStrLn h ("Could not add event: " ++ why)
+		  else  hPutStrLn h "Sorry, you don't have what it takes!"
 		talk h perm 
         reply (Edit e) = do
-  		result <- modifyFahrplan e
-		when (isNothing result) $ sendMSignal ?changeS ()
-		case result of
-			Nothing  -> hPutStrLn h "Sucessfully edited event"
-			Just why -> hPutStrLn h ("Could not edit event: " ++ why)
+		if CanEdit `elem` perm then do
+			result <- modifyFahrplan e
+			when (isNothing result) $ sendMSignal ?changeS ()
+			case result of
+				Nothing  -> hPutStrLn h "Sucessfully edited event"
+				Just why -> hPutStrLn h ("Could not edit event: " ++ why)
+		  else  hPutStrLn h "Sorry, you don't have what it takes!"
 		talk h perm 
         reply (Delete id) = do
-  		result <- removeFromFahrplan id
-		when (isNothing result) $ sendMSignal ?changeS ()
-		case result of
-			Nothing  -> hPutStrLn h "Sucessfully removed event"
-			Just why -> hPutStrLn h ("Could not remove event: " ++ why)
+		if CanDelete `elem` perm then do
+			result <- removeFromFahrplan id
+			when (isNothing result) $ sendMSignal ?changeS ()
+			case result of
+				Nothing  -> hPutStrLn h "Sucessfully removed event"
+				Just why -> hPutStrLn h ("Could not remove event: " ++ why)
+		  else  hPutStrLn h "Sorry, you don't have what it takes!"
 		talk h perm 
         reply ShowFahrplan = do
-		fahrplan <- readFileRef ?dataFile
-		hPrint h fahrplan
+		if CanRead `elem` perm then do
+			fahrplan <- readFileRef ?dataFile
+			hPrint h fahrplan
+		  else  hPutStrLn h "Sorry, you don't have what it takes!"
 		talk h perm 
         reply Listen = do
-		receiveMSignal ?changeS
-		fahrplan <- readFileRef ?dataFile
-		hPrint h fahrplan
+		if CanRead `elem` perm then do
+			receiveMSignal ?changeS
+			fahrplan <- readFileRef ?dataFile
+			hPrint h fahrplan
+		  else  hPutStrLn h "Sorry, you don't have what it takes!"
 		talk h perm 
 	{- Yay, GHC tells me that this can not happen! 
         reply _    = do
