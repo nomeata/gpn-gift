@@ -101,53 +101,37 @@ talk h perm = do
 		command <- read `liftM` hGetLine h
 		putStrLn $ "Got command " ++ show command
 		reply command
-  where reply Quit = do
-  		hPutStrLn h "Goodbye..."
-        reply (Commit e) = do
-		if CanCommit `elem` perm then do
-			result <- addToFahrplan e
-			when (isNothing result) $ sendMSignal ?changeS ()
-			case result of
-				Nothing  -> hPutStrLn h "Sucessfully added event to fahrplan"
-				Just why -> hPutStrLn h ("Could not add event: " ++ why)
-		  else  hPutStrLn h "Sorry, you don't have what it takes!"
-		talk h perm 
-        reply (Edit e) = do
-		if CanEdit `elem` perm then do
-			result <- modifyFahrplan e
-			when (isNothing result) $ sendMSignal ?changeS ()
-			case result of
-				Nothing  -> hPutStrLn h "Sucessfully edited event"
-				Just why -> hPutStrLn h ("Could not edit event: " ++ why)
-		  else  hPutStrLn h "Sorry, you don't have what it takes!"
-		talk h perm 
-        reply (Delete id) = do
-		if CanDelete `elem` perm then do
-			result <- removeFromFahrplan id
-			when (isNothing result) $ sendMSignal ?changeS ()
-			case result of
-				Nothing  -> hPutStrLn h "Sucessfully removed event"
-				Just why -> hPutStrLn h ("Could not remove event: " ++ why)
-		  else  hPutStrLn h "Sorry, you don't have what it takes!"
-		talk h perm 
-        reply ShowFahrplan = do
-		if CanRead `elem` perm then do
-			fahrplan <- readFileRef ?dataFile
-			hPrint h fahrplan
-		  else  hPutStrLn h "Sorry, you don't have what it takes!"
-		talk h perm 
-        reply Listen = do
-		if CanRead `elem` perm then do
-			receiveMSignal ?changeS
-			fahrplan <- readFileRef ?dataFile
-			hPrint h fahrplan
-		  else  hPutStrLn h "Sorry, you don't have what it takes!"
-		talk h perm 
-	{- Yay, GHC tells me that this can not happen! 
-        reply _    = do
-  		hPutStrLn h "Unimplemented Command"
+  where wrap req act = do
+		if req `elem` perm then act
+		                   else hPutStrLn h "Sorry, you don't have what it takes!"
 		talk h perm
-	-}
+  	reply Quit = do
+  		hPutStrLn h "Goodbye..."
+        reply (Commit e) = wrap CanCommit $ do
+		result <- addToFahrplan e
+		when (isNothing result) $ sendMSignal ?changeS ()
+		case result of
+			Nothing  -> hPutStrLn h "Sucessfully added event to fahrplan"
+			Just why -> hPutStrLn h ("Could not add event: " ++ why)
+        reply (Edit e) = wrap CanEdit $ do
+		result <- modifyFahrplan e
+		when (isNothing result) $ sendMSignal ?changeS ()
+		case result of
+			Nothing  -> hPutStrLn h "Sucessfully edited event"
+			Just why -> hPutStrLn h ("Could not edit event: " ++ why)
+        reply (Delete id) = wrap CanDelete $ do
+		result <- removeFromFahrplan id
+		when (isNothing result) $ sendMSignal ?changeS ()
+		case result of
+			Nothing  -> hPutStrLn h "Sucessfully removed event"
+			Just why -> hPutStrLn h ("Could not remove event: " ++ why)
+        reply ShowFahrplan = wrap CanRead $ do
+		fahrplan <- readFileRef ?dataFile
+		hPrint h fahrplan
+        reply Listen = wrap CanRead $ do
+		receiveMSignal ?changeS
+		fahrplan <- readFileRef ?dataFile
+		hPrint h fahrplan
 	
 ------------------------------------------------------------------------------------
 -- Fahrplan DB Handling
