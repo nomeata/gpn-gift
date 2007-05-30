@@ -62,8 +62,8 @@ main = do
 		mainGUI
 	
 login h conf = do
-	hPutStrLn h "guest"
-	hPutStrLn h "guest"
+	hPutStrLn h (fromJust $ lookup "username" conf)
+	hPutStrLn h (fromJust $ lookup "password" conf)
 
 render canvas logo fahrplan_ref = do
 	time <- now
