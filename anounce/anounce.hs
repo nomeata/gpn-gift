@@ -31,7 +31,7 @@ main = do
 	canvas <- drawingAreaNew
 	fahrplan_ref <- newIORef ([] :: Fahrplan)
 
-	windowSetResizable window False
+	--windowSetResizable window False
 	widgetSetSizeRequest window width height
 	onButtonPress window $ const (widgetDestroy window >> return True)
 	onDestroy window mainQuit
@@ -69,10 +69,13 @@ render canvas logo fahrplan_ref = do
 	time <- now
 	win <- widgetGetDrawWindow canvas
 	fahrplan <- readIORef fahrplan_ref
-	--(width, height) <- widgetGetSize canvas
-	renderWithDrawable win $ renderC logo time fahrplan
+	(w, h) <- widgetGetSize canvas
+        let sx = fromIntegral w / width
+        let sy = fromIntegral h / height
+	renderWithDrawable win $ renderC sx sy logo time fahrplan
 
-renderC logo now events = do
+renderC sx sy logo now events = do
+        scale sx sy
 	selectFontFace "Mono" FontSlantNormal FontWeightNormal
 	drawbg logo
 	clock now
