@@ -23,6 +23,7 @@
 ------------------------------------------------------------------------------------
 
 import System.IO
+import System.Posix.Signals
 import Network
 import Data.Maybe
 import Data.List
@@ -43,6 +44,7 @@ import DatT
 
 main :: IO()
 main = withSocketsDo $ do
+	installHandler sigPIPE Ignore Nothing
 	putStr "Starting up\n" 
 	conf <- read `liftM` readFile "data/server.cnf" -- reading the server.cnf
 	pwdFile <- newFileRef (fromJust $ lookup "passwd" conf) -- Implicit Parameter
@@ -65,12 +67,14 @@ main = withSocketsDo $ do
 acceptloop socket False = sClose socket
 acceptloop socket True = do
 	(cHandle, cName, cPort) <- accept socket
-	forkIO $ flip finally (hClose cHandle) $ do
-		putStrLn ("Incoming request from: " ++ show cName)
-		putStrLn ("His Port is: " ++ show cPort)
+	forkIO $ (do
+		putStrLn $ "Incoming request from: " ++ show cName ++ ":" ++ show cPort
 		hSetBuffering cHandle LineBuffering
 		login cHandle
-		hClose cHandle
+		) `finally` (do
+		hClose cHandle `catch` const(return ())
+		putStrLn $ "Done with: " ++ show cName ++ ":" ++ show cPort
+		)
 	acceptloop socket True
 
 login h = do
@@ -82,8 +86,8 @@ login h = do
        	case auth_res of
 		Nothing    -> putStrLn "Login failed..."
 	 	Just perms -> catch (talk h perms) $ \e -> do
-				 hPutStrLn h   "Some Error Happened, Good bye"
-				 putStrLn    $ "Error" ++ show e
+				 hPutStrLn h   "Some Error Happened, Good bye" `catch` const(return ())
+				 putStrLn    $ "Error while talking to client: " ++ show e
 			 	
 ------------------------------------------------------------------------------------
 -- Password portection 
