@@ -128,6 +128,7 @@ markup (lable, event) line = do
 	case lable of
 		Running -> setSourceRGB 1 0 0 
 		Future  -> setSourceRGB 1 1 1
+		Passed  -> setSourceRGB 0.3 0.3 0.3
 	showText (eName event)
 	restore
 
