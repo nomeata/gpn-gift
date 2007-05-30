@@ -1,5 +1,5 @@
 all:	client.hs
-	ghc --make -i../common client.hs -o client
+	ghc -fwarn-incomplete-patterns --make -i../common client.hs -o client
 
 clean:
 	rm *.hi

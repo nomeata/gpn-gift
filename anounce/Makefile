@@ -1,3 +1,3 @@
 all:	anounce.hs
-	ghc --make -i../common anounce.hs -o anounce
+	ghc -fwarn-incomplete-patterns --make -i../common anounce.hs -o anounce
 clean:
