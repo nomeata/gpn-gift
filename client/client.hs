@@ -126,10 +126,11 @@ main = do
 	onClicked b_delete $ do
 		(path,_) <- New.treeViewGetCursor tv
 		case path of
-			[] -> return ()
+			[]  -> return ()
 			[n] -> do
 				event <- New.listStoreGetValue fahrplan n
 				when (eID event /= 0) $ send_command (Delete (eID event))
+			_   -> error "Unexpected deep Path"
 
 	onClicked b_quit $ widgetDestroy window
 	
