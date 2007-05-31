@@ -18,4 +18,9 @@ doc-stamp: common/*.hs
 	touch $@
 
 gift.tar.gz: server/server client/client anounce/anounce */data/*
-	tar vczf $@ $+
+	rm -rf tmp
+	mkdir tmp
+	mkdir tmp/gift
+	tar cf - $+ | tar -C tmp/gift -x 
+	tar vczf $@ -C tmp gift
+	rm -rf tmp
