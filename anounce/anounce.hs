@@ -31,7 +31,6 @@ main = do
 	canvas <- drawingAreaNew
 	fahrplan_ref <- newIORef ([] :: Fahrplan)
 
-	--windowSetResizable window False
 	widgetSetSizeRequest window width height
 	onButtonPress window $ const (widgetDestroy window >> return True)
 	onDestroy window mainQuit
@@ -59,6 +58,8 @@ main = do
 		onExpose canvas $ const $ render canvas logo fahrplan_ref
 		timeoutAdd (widgetQueueDraw canvas >> return True) 500
 		set window [containerChild := canvas]
+
+		windowFullscreen window
 		widgetShowAll window
 		mainGUI
 	
