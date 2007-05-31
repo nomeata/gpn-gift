@@ -1,1 +1,5 @@
-[("port","2342"),("username","admin"),("password","admin")]
+[("port","2342"),
+ ("host","localhost"),
+ ("username","admin"),
+ ("password","admin")
+]

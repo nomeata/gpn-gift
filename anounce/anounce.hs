@@ -36,9 +36,10 @@ main = do
 	onButtonPress window $ const (widgetDestroy window >> return True)
 	onDestroy window mainQuit
 
-	conf <- read `liftM` readFile "data/anounce.cnf" -- reading the server.cnf
-	let port = read (fromJust $ lookup "port" conf) :: Int
-	h <- connectTo "localhost"  (PortNumber (fromIntegral port))
+	conf <- read `liftM` readFile "data/anounce.cnf"
+	let port = read (fromMaybe "2342" $ lookup "port" conf) :: Int
+	let host =       fromMaybe "localhost" $ lookup "host" conf
+	h <- connectTo host (PortNumber (fromIntegral port))
 	hSetBuffering h LineBuffering
 	login h conf
 	hPrint h ShowFahrplan

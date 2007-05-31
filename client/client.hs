@@ -80,8 +80,9 @@ setup_liststore fahrplan tv edit = do
 main :: IO()
 main = do
 	conf <- read `liftM` readFile "data/client.cnf" -- reading the server.cnf
-	let port = read (fromJust $ lookup "port" conf) :: Int
-	h <- connectTo "localhost"  (PortNumber (fromIntegral port))
+	let port = read (fromMaybe "2342" $ lookup "port" conf) :: Int
+	let host =       fromMaybe "localhost" $ lookup "host" conf
+	h <- connectTo host (PortNumber (fromIntegral port))
 	hSetBuffering h LineBuffering
 	login h conf
 
