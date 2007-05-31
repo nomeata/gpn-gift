@@ -145,8 +145,8 @@ inRoom room fahrplan = filter (\e -> eRoom e == room) fahrplan
 
 sameRoom event = inRoom (eRoom event)
 
-sameTime e1 e2 = not ((eTime e1 < eTime e2 && eEndTime e1 < eTime e2) ||
-                      (eTime e2 < eTime e1 && eEndTime e2 < eTime e1))
+sameTime e1 e2 = not ((eTime e1 < eTime e2 && eEndTime e1 <= eTime e2) ||
+                      (eTime e2 < eTime e1 && eEndTime e2 <= eTime e1))
 
 findConflict event fahrplan = find (sameTime event) relevants
   where relevants = sameRoom event fahrplan
