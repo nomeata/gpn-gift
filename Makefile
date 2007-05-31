@@ -17,7 +17,7 @@ doc-stamp: common/*.hs
 		$+ 
 	touch $@
 
-gift.tar.gz: server/server client/client anounce/anounce */data/*
+gift.tar.gz: server/server client/client anounce/anounce */data/* README
 	rm -rf tmp
 	mkdir tmp
 	mkdir tmp/gift
