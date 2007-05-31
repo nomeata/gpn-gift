@@ -8,3 +8,32 @@ It consists of mostly three programms:
 2. the client:   He commits events and changes to the server.
 	         He also displays all events.
 3. the anouncer: He displays the next events to the public.
+
+== Usage (Server) ==
+
+ * Extract the server binary and the data/ files somewhere
+ * Configure the username/password pairs in data/server.cnf
+   Note that the credentials are transmitted as plain text, so 
+   do not use valuabe passwords.
+ * Run the server (./server). It does not fork, so you might want
+   to run it in a screen session.
+
+== Usage (Client) ==
+ * Extract the client binary and the data/ files somewhere
+ * Configure username/password, hostname and port of the server
+   in data/client.cnf
+ * Run the client (./client)
+ * To edit an event, just click the field and change the value.
+   ENTER will upload the change, ESC will abort the modification.
+   Note that the program expects correct entries for Room, Time and RunTime
+ * To delete an event, select the row and click Delete.
+ * To add an event, use the last, empty line. First enter the name
+   of the event, then the Time, RunTime and Room.
+
+== Usage (Anounce) ==
+ * Extract the client binary and the data/ files somewhere
+ * Configure username/password, hostname and port of the server
+   in data/client.cnf
+ * Run the client (./client)
+ * Clicking anywhere exits the program.
+  
