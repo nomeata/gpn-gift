@@ -49,7 +49,7 @@ main = withSocketsDo $ do
 	conf <- read `liftM` readFile "data/server.cnf" -- reading the server.cnf
 	pwdFile <- newFileRef (fromJust $ lookup "passwd" conf) -- Implicit Parameter
 	let ?pwdFile = pwdFile :: FileRef Passwd
-	dataFile <- newFileRef "data/fahrplan.data"
+	dataFile <- newFileRef (fromJust $ lookup "data" conf )
 	let ?dataFile = dataFile :: FileRef Fahrplan
 	changeS <- newMSignal
 	let ?changeS = changeS
