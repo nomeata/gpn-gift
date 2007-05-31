@@ -112,9 +112,10 @@ main = do
 	let send_command cmd = do
 		hPrint h cmd 
 		reply <- hGetLine h 
-		dialog <- messageDialogNew (Just window) [] MessageInfo ButtonsOk reply
-		dialogRun dialog
-		widgetDestroy dialog
+		unless ("Sucessfully" `isPrefixOf` reply) $ do
+			dialog <- messageDialogNew (Just window) [] MessageInfo ButtonsOk reply
+			dialogRun dialog
+			widgetDestroy dialog
 		update_fahrplan
 		return ()
 
