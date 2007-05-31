@@ -26,6 +26,7 @@ It consists of mostly three programms:
  * To edit an event, just click the field and change the value.
    ENTER will upload the change, ESC will abort the modification.
    Note that the program expects correct entries for Room, Time and RunTime
+   Valid values for room are: KlammerAuf KlammerZu Balcony Otherwhere
  * To delete an event, select the row and click Delete.
  * To add an event, use the last, empty line. First enter the name
    of the event, then the Time, RunTime and Room.

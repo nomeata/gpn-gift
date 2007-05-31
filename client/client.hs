@@ -13,7 +13,7 @@ import Time
 import DatT
 
 empty_event :: Event
-empty_event = Event 0 "" Chaos (read "(0,0,0)") (read "(0,0)")
+empty_event = Event 0 "" Otherwhere (read "(0,0,0)") (read "(0,0)")
 
 setup_liststore fahrplan tv edit = do
 	col1 <- New.treeViewColumnNew

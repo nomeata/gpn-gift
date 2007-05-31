@@ -9,7 +9,7 @@ type Option = [(String, String)]
 type Fahrplan = [Event]
 
 -- | An enumeration of rooms at the GPN6
-data Room = Chaos | HackCenter | Balcony deriving (Eq, Show, Read, Ord)
+data Room = KlammerAuf | KlammerZu | Balcony | Otherwhere deriving (Eq, Show, Read, Ord)
 
 -- | An event, containing fields for: ID, Name, Room, Start Time, End Time. To be accessed using the following accessors.
 data Event = Event {
