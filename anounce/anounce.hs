@@ -108,7 +108,7 @@ clock time = do
 	restore
 
 fahrplan now events = do
-	let show_events = take 10 $ filter (not . isPassed) $
+	let show_events = take 11 $ filter (not . isPassed) $
 				map (label now) $ sortBy (comparing eTime) $ events
 	mapM_ (uncurry markup) (zip show_events [1..])
 
