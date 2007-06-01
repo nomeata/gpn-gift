@@ -1,4 +1,4 @@
-module Time (Time, RunTime, printTime, printRunTime, now, addRunTime) where
+module Time (Time(..), RunTime(..), printTime, printRunTime, now, addRunTime) where
 
 import System.Time
 import Text.Printf
