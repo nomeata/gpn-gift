@@ -24,15 +24,16 @@ eEndTime:: Event -> Time
 eEndTime event = eTime event `addRunTime` eRunTime event
 
 -- | User database (Username\/Password pairs and list of permissions)
-data Permission = CanRead | CanCommit | CanEdit | CanDelete deriving (Eq, Read, Show)
+data Permission = CanRead | CanCommit | CanEdit | CanDelete | CanSet deriving (Eq, Read, Show)
 type Passwd = [((String,String),[Permission])]
 
 -- | Possible commands to be received by the client
 data ClientCommand =
-	Commit Event   | -- ^ Adding a new event (Event Id ignored)
-	Delete Integer | -- ^ Deleting the event with the given id
-	Edit   Event   | -- ^ Replace the event with the same id
-	ShowFahrplan   | -- ^ Print the current Fahrplan
-	Listen         | -- ^ Wait until the Fahrplan changes, and then print it /once/
-	Quit             -- ^ Close the connection
+	Commit Event  		| -- ^ Adding a new event (Event Id ignored)
+	Delete Integer 		| -- ^ Deleting the event with the given id
+	Edit   Event   		| -- ^ Replace the event with the same id
+	ShowFahrplan   		| -- ^ Print the current Fahrplan
+	SetFahrplan Fahrplan 	| -- ^ Replace the complete Fahrplan
+	Listen       		| -- ^ Wait until the Fahrplan changes, and then print it /once/
+	Quit            	  -- ^ Close the connection
   deriving (Show, Read)

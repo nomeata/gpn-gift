@@ -1,4 +1,5 @@
 [(("guest","guest"),[CanRead]),
-(("admin","admin"),[CanRead, CanCommit, CanEdit, CanDelete])
+(("admin","admin"),[CanRead, CanCommit, CanEdit, CanDelete]),
+(("super","super"),[CanSet])
 ]
 

@@ -111,6 +111,12 @@ talk h perm = do
 		talk h perm
   	reply Quit = do
   		hPutStrLn h "Goodbye..."
+        reply (SetFahrplan f) = wrap CanSet $ do
+		result <- replaceFahrplan f
+		when (isNothing result) $ sendMSignal ?changeS ()
+		case result of
+			Nothing  -> hPutStrLn h "Sucessfully replaced fahrplan"
+			Just why -> hPutStrLn h ("Could not add event: " ++ why)
         reply (Commit e) = wrap CanCommit $ do
 		result <- addToFahrplan e
 		when (isNothing result) $ sendMSignal ?changeS ()
@@ -154,6 +160,17 @@ findConflict event fahrplan = find (sameTime event) relevants
 validChar = not . isControl -- Hauptsache keine NewLines. Sonst noch Wünsche?
 
 errorIf msg test = if test then Just msg else Nothing
+
+replaceFahrplan fp = do
+	fahrplan <- readFileRef ?dataFile
+	let result = join $ find (isJust) [ -- Things to Check
+		--"Ungültiger Eventname" `errorIf` not (all validChar (eName event)),
+		--"Leerer Name" `errorIf` null (eName event),
+		--(\e -> "Konflikt mit " ++ eName e) `fmap` findConflict event fahrplan
+		]
+	when (isNothing result) $ do
+		writeFileRef ?dataFile fp	
+	return result
 
 addToFahrplan event = do
 	fahrplan <- readFileRef ?dataFile
