@@ -4,6 +4,7 @@ progs:
 	make -C anounce
 	make -C server
 	make -C client
+	make -C ngupload
 
 test: progs
 	echo "Done testing gift..."
@@ -17,7 +18,7 @@ doc-stamp: common/*.hs
 		$+ 
 	touch $@
 
-gift.tar.gz: server/server client/client anounce/anounce */data/* README
+gift.tar.gz: ngupload/ngupload server/server client/client anounce/anounce */data/* README
 	rm -rf tmp
 	mkdir tmp
 	mkdir tmp/gift
