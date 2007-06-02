@@ -18,7 +18,7 @@ doc-stamp: common/*.hs
 		$+ 
 	touch $@
 
-gift.tar.gz: ngupload/ngupload server/server client/client anounce/anounce */data/* README
+gift.tar.gz: ngupload/ngupload server/server client/client anounce/GPN6_logo.png anounce/anounce */data/* README
 	rm -rf tmp
 	mkdir tmp
 	mkdir tmp/gift
