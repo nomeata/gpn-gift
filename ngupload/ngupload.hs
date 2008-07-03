@@ -38,15 +38,12 @@ parse_ng line i  | null text = Nothing
   where w = words line
   	tag_s = w !! 0
 	time_s = w !! 1
-	raum1_s = w !! 2
-	raum2_s  = w !! 3
-	text_k  = unwords $ drop 4 w
-	text_i  = unwords $ drop 3 w
-	raum | raum1_s == "KLAMMER" && raum2_s == "AUF" = KlammerAuf
-	     | raum1_s == "KLAMMER" && raum2_s == "ZU"  = KlammerZu
-	     | otherwise                                = Otherwhere
-	text | raum == KlammerAuf || raum == KlammerZu  = text_k
-	     | otherwise                                = text_i
+	raum_s = w !! 2
+	text  = unwords $ drop 3 w
+	raum | raum_s == "ÜBERALL"  = Ueberall
+	     | raum_s == "IRGENDWO" = Irgendwo
+	     | raum_s == "NIRGENDS" = Nirgends
+	     | otherwise           = error $ "Can not parse room " ++ show raum_s
 	start_time = Time { tDay = read tag_s, tHour = read hour, tMin = read min}
 	run_time   = RunTime {rtHour = 1, rtMin = 0}
 	(hour,_:min) = span (/=':') time_s
