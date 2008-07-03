@@ -46,7 +46,7 @@ It consists of mostly three programms:
  * Run ngupload (./ngupload) and pipe the data in the „special format“
    to it.
  * If necessary, use a pipe like
-   cat data.txt | iconv -tlatin1 | ./ngupload.cnf
+   cat data.txt | iconv -tlatin1 | ./ngupload
 
 == Authors ==
 
