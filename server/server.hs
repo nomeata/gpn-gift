@@ -51,6 +51,7 @@ main = withSocketsDo $ do
 	let ?pwdFile = pwdFile :: FileRef Passwd
 	dataFile <- newFileRef (fromJust $ lookup "data" conf )
 	let ?dataFile = dataFile :: FileRef Fahrplan
+	readFileRef ?dataFile >>= \d -> putStrLn $ "Read " ++ (show (length d)) ++ " events."
 	changeS <- newMSignal
 	let ?changeS = changeS
 	let port = read (fromJust $ lookup "port" conf) :: Int
