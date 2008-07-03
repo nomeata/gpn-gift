@@ -2,6 +2,7 @@
 module FileRef (FileRef, newFileRef, readFileRef, writeFileRef) where
 
 import System.FilePath
+import System.Directory
 import Data.IORef
 import qualified Data.ByteString.Char8 as BS -- Faster and Strict
 
