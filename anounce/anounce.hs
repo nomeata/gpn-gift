@@ -54,7 +54,7 @@ main = do
 		widgetQueueDraw canvas
 
 
-	withImageSurfaceFromPNG "GPN6_logo.png" $ \logo -> do
+	withImageSurfaceFromPNG "GPN7_logo.png" $ \logo -> do
 		onExpose canvas $ const $ render canvas logo fahrplan_ref
 		timeoutAdd (widgetQueueDraw canvas >> return True) 500
 		set window [containerChild := canvas]
@@ -92,7 +92,7 @@ drawbg logo = do
 	h <- imageSurfaceGetHeight logo
 	setSourceSurface logo
 		(fromIntegral ((width - w) `div` 2))
-		(fromIntegral  (height - h - 20))
+		(fromIntegral  (20))
 	paint
 	restore
 
@@ -108,7 +108,7 @@ clock time = do
 	restore
 
 fahrplan now events = do
-	let show_events = take 11 $ filter (not . isPassed) $
+	let show_events = take 12 $ filter (not . isPassed) $
 				map (label now) $ sortBy (comparing eTime) $ events
 	mapM_ (uncurry markup) (zip show_events [1..])
 
@@ -123,7 +123,7 @@ markup (lable, event) line = do
 	save
 	let place_and_time = printf "[%s @ %s]" 
 		(printTime (eTime event)) (show (eRoom event))
-	let y = 50 * line
+	let y = 150 + 50 * line
 	moveTo 20 y
 	setFontSize 20
 	setSourceRGB 0.8 0.8 0.8
@@ -140,4 +140,3 @@ markup (lable, event) line = do
 
 foreach :: (Monad m) => [a] -> (a -> m b) -> m [b]
 foreach = flip mapM
-
