@@ -31,7 +31,7 @@ printRunTime time = printf "%02.0dh%02.0d" (rtHour time) (rtMin time)
 now :: IO (Time)
 now = do
 	time <- getClockTime >>= toCalendarTime
-	return $ Time { tDay = ctDay time - 2, tHour = ctHour time, tMin = ctMin time}
+	return $ Time { tDay = ctDay time - 3, tHour = ctHour time, tMin = ctMin time}
 
 -- | Given a start time and a run time, retun the end time
 addRunTime :: Time -> RunTime -> Time
