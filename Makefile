@@ -14,7 +14,7 @@ doc:	doc-stamp
 doc-stamp: common/*.hs
 	haddock --html --odir ./haddock --source-module=../%F \
 		--title "GIFT Libraries" \
-		-i /usr/share/doc/ghc6-doc/html/libraries/base/,/usr/share/doc/ghc6-doc/html/libraries/base/base.haddock \
+		-i /usr/share/doc/ghc6-doc/libraries/base/,/usr/share/doc/ghc6-doc/libraries/base/base.haddock \
 		$+ 
 	touch $@
 
