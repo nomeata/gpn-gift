@@ -121,15 +121,15 @@ label time event | eEndTime event < time  = (Passed,    event)
 
 markup (lable, event) line = do
 	save
-	let place_and_time = printf "[%s @ %s]" 
-		(printTime (eTime event)) (show (eRoom event))
 	let y = 150 + 50 * line
-	moveTo 20 y
+	moveTo 20 (y-25)
 	setFontSize 20
 	setSourceRGB 0.8 0.8 0.8
-	showText place_and_time
+	showText $ printTime (eTime event)
+	moveTo 20 y
+	showText $ "@" ++ show (eRoom event)
 	setFontSize 40
-	moveTo 350 y
+	moveTo 200 y
 	case lable of
 		Running -> setSourceRGB 1 0 0 
 		Future  -> setSourceRGB 1 1 1
